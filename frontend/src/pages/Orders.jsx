@@ -4,6 +4,7 @@ import Modal from '../components/Modal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { AlertContainer } from '../components/Alert';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { formatCurrency, formatDateTime } from '../utils/formatters';
 import './Products.css';
 import './Orders.css';
 
@@ -237,7 +238,7 @@ export default function Orders() {
                     <span className="order-number-pill">#{order.id}</span>
                   </td>
                   <td className="cell-name">{order.customer_name}</td>
-                  <td className="cell-price">${order.total_amount.toFixed(2)}</td>
+                  <td className="cell-price">{formatCurrency(order.total_amount)}</td>
                   <td>{new Date(order.created_at).toLocaleDateString()}</td>
                   <td>
                     <span className="badge badge--success">
@@ -322,7 +323,7 @@ export default function Orders() {
                         <option value="">Select product...</option>
                         {products.map((p) => (
                           <option key={p.id} value={p.id}>
-                            {p.name} — ${p.price.toFixed(2)} (Qty: {p.quantity})
+                            {p.name} — {formatCurrency(p.price)} (Qty: {p.quantity})
                           </option>
                         ))}
                       </select>
@@ -377,9 +378,9 @@ export default function Orders() {
                   <div key={i} className="receipt-item-line">
                     <div className="receipt-item-info">
                       <span className="receipt-item-name">{item.name}</span>
-                      <span className="receipt-item-qty">x{item.qty} @ ${item.price.toFixed(2)}</span>
+                      <span className="receipt-item-qty">x{item.qty} @ {formatCurrency(item.price)}</span>
                     </div>
-                    <span className="receipt-item-price">${item.subtotal.toFixed(2)}</span>
+                    <span className="receipt-item-price">{formatCurrency(item.subtotal)}</span>
                   </div>
                 ))
               )}
@@ -390,16 +391,16 @@ export default function Orders() {
             <div className="receipt-totals">
               <div className="receipt-total-line">
                 <span>Subtotal:</span>
-                <span>${orderSummaryDetails.subtotal.toFixed(2)}</span>
+                <span>{formatCurrency(orderSummaryDetails.subtotal)}</span>
               </div>
               <div className="receipt-total-line">
                 <span>Tax (8%):</span>
-                <span>${orderSummaryDetails.tax.toFixed(2)}</span>
+                <span>{formatCurrency(orderSummaryDetails.tax)}</span>
               </div>
               <div className="receipt-divider dotted" />
               <div className="receipt-total-line receipt-total-line--grand">
                 <span>TOTAL:</span>
-                <span>${orderSummaryDetails.grandTotal.toFixed(2)}</span>
+                <span>{formatCurrency(orderSummaryDetails.grandTotal)}</span>
               </div>
             </div>
 
@@ -443,7 +444,7 @@ export default function Orders() {
               <div>
                 <span className="invoice-label">Billed To</span>
                 <div className="invoice-client-name">{detailOrder.customer_name}</div>
-                <div className="invoice-client-meta">Date: {new Date(detailOrder.created_at).toLocaleString()}</div>
+                <div className="invoice-client-meta">Date: {formatDateTime(detailOrder.created_at)}</div>
               </div>
             </div>
 
@@ -454,9 +455,9 @@ export default function Orders() {
                 <div key={item.id} className="invoice-item-line">
                   <div className="invoice-item-main">
                     <span className="invoice-item-title">{item.product_name}</span>
-                    <span className="invoice-item-sub">SKU: {item.product_sku} | {item.quantity} x ${item.unit_price.toFixed(2)}</span>
+                    <span className="invoice-item-sub">SKU: {item.product_sku} | {item.quantity} x {formatCurrency(item.unit_price)}</span>
                   </div>
-                  <span className="invoice-item-total">${item.subtotal.toFixed(2)}</span>
+                  <span className="invoice-item-total">{formatCurrency(item.subtotal)}</span>
                 </div>
               ))}
             </div>
@@ -465,7 +466,7 @@ export default function Orders() {
 
             <div className="invoice-grand-total">
               <span>Grand Total</span>
-              <span>${detailOrder.total_amount.toFixed(2)}</span>
+              <span>{formatCurrency(detailOrder.total_amount)}</span>
             </div>
 
             <div className="invoice-footer">

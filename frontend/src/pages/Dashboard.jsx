@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { productAPI, customerAPI, orderAPI } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { formatCurrency } from '../utils/formatters';
 import './Dashboard.css';
 
-// Monthly Mock Sales Trend data for Visual Charting
-const initialSalesTrend = [
+// Baseline mockup trend values (monthly sales targets)
+const BASELINE_SALES_TREND = [
   { month: 'Jan', sales: 1200 },
   { month: 'Feb', sales: 1900 },
   { month: 'Mar', sales: 3400 },
@@ -28,6 +29,10 @@ export default function Dashboard() {
     fetchDashboardData();
   }, []);
 
+  /**
+   * Fetch all inventory counts, customers, and order history, 
+   * grouping statistics and computing low-stock warning arrays.
+   */
   async function fetchDashboardData() {
     try {
       const [productsRes, customersRes, ordersRes] = await Promise.all([
@@ -40,7 +45,7 @@ export default function Dashboard() {
       const customers = customersRes.data;
       const orders = ordersRes.data;
 
-      // Products with less than 10 in stock
+      // Filter products under safe stock threshold (quantity < 10)
       const lowStock = products.filter((p) => p.quantity < 10);
 
       setStats({
@@ -50,7 +55,7 @@ export default function Dashboard() {
         lowStockProducts: lowStock,
       });
 
-      // Grab last 5 orders for the recent activity section
+      // Show the latest 5 orders in the Activity Feed
       setRecentOrders(orders.slice(0, 5));
     } catch (err) {
       console.error('Failed to load dashboard data:', err);
@@ -61,18 +66,21 @@ export default function Dashboard() {
 
   if (loading) return <LoadingSpinner message="Loading dashboard..." />;
 
-  // Dynamic Sales Trend calculations
-  // Adapt mock sales with some variation based on total orders
-  const salesTrend = initialSalesTrend.map((t, idx) => {
-    if (idx === initialSalesTrend.length - 1) {
-      // Modify last month based on actual orders total
-      const orderSum = recentOrders.reduce((sum, o) => sum + o.total_amount, 0);
-      return { ...t, sales: Math.max(t.sales, Math.round(t.sales + orderSum)) };
+  /**
+   * ── SVG Graph Coordinate Calculations ─────────────────────────────────
+   * To build an interactive, responsive line chart without bloated libraries,
+   * we project our sales data points onto coordinates inside a defined SVG viewBox.
+   */
+  const salesTrend = BASELINE_SALES_TREND.map((t, idx) => {
+    // Incorporate actual database sales totals into the current month's target
+    if (idx === BASELINE_SALES_TREND.length - 1) {
+      const dbOrdersTotal = recentOrders.reduce((sum, o) => sum + o.total_amount, 0);
+      return { ...t, sales: Math.max(t.sales, Math.round(t.sales + dbOrdersTotal)) };
     }
     return t;
   });
 
-  const maxSales = Math.max(...salesTrend.map(d => d.sales), 1000) * 1.15;
+  // Graph dimension bounds
   const svgWidth = 550;
   const svgHeight = 220;
   const paddingX = 40;
@@ -80,15 +88,21 @@ export default function Dashboard() {
   const graphWidth = svgWidth - paddingX * 2;
   const graphHeight = svgHeight - paddingY * 2;
 
-  // Calculate coordinates for SVG Path
+  // Find maximum sales point to auto-scale the y-axis dynamically
+  const maxSales = Math.max(...salesTrend.map(d => d.sales), 1000) * 1.15;
+
+  // Map monthly data objects to coordinate points [x, y]
   const points = salesTrend.map((data, idx) => {
+    // Horizontal distribution: split evenly across index items
     const x = paddingX + (idx * (graphWidth / (salesTrend.length - 1)));
+    // Vertical distribution: subtract fraction from bottom padding to draw upwards
     const y = svgHeight - paddingY - ((data.sales / maxSales) * graphHeight);
     return { x, y, ...data };
   });
 
-  // Area path coordinate string
+  // Construct SVG drawing commands (M = Move To, L = Line To)
   const linePath = points.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+  // Close the area polygon at bottom-right/bottom-left coordinates for gradient fills
   const areaPath = `${linePath} L ${points[points.length - 1].x} ${svgHeight - paddingY} L ${points[0].x} ${svgHeight - paddingY} Z`;
 
   const cards = [
@@ -143,7 +157,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Summary cards */}
+      {/* Summary Stats Grid */}
       <div className="stat-grid">
         {cards.map((card, i) => (
           <div
@@ -182,7 +196,7 @@ export default function Dashboard() {
                 </filter>
               </defs>
 
-              {/* Grid Lines */}
+              {/* Dotted Grid Lines */}
               {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
                 const y = paddingY + ratio * graphHeight;
                 return (
@@ -198,10 +212,10 @@ export default function Dashboard() {
                 );
               })}
 
-              {/* Gradient Area */}
+              {/* Gradient Filled Poly-Area */}
               <path d={areaPath} fill="url(#chart-area-grad)" />
 
-              {/* Stroke Line */}
+              {/* Core Line Stroke */}
               <path 
                 d={linePath} 
                 fill="none" 
@@ -211,7 +225,7 @@ export default function Dashboard() {
                 filter="url(#shadow-glow)"
               />
 
-              {/* Axis Labels */}
+              {/* Axis Bottom Month Labels */}
               {points.map((p, idx) => (
                 <text 
                   key={idx} 
@@ -226,7 +240,7 @@ export default function Dashboard() {
                 </text>
               ))}
 
-              {/* Interactive Hover Dots */}
+              {/* Dynamic Interactive Scatter Nodes */}
               {points.map((p, idx) => (
                 <circle
                   key={idx}
@@ -243,7 +257,7 @@ export default function Dashboard() {
               ))}
             </svg>
 
-            {/* Dynamic HTML Tooltip */}
+            {/* Dynamic CSS Tooltip Overlay */}
             {hoveredPoint && (
               <div 
                 className="chart-tooltip"
@@ -253,13 +267,13 @@ export default function Dashboard() {
                 }}
               >
                 <div className="chart-tooltip__month">{hoveredPoint.month}</div>
-                <div className="chart-tooltip__value">${hoveredPoint.sales.toLocaleString()}</div>
+                <div className="chart-tooltip__value">{formatCurrency(hoveredPoint.sales)}</div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Recent orders */}
+        {/* Recent timeline activities log */}
         <div className="dashboard-panel">
           <h2 className="panel-title">
             <svg className="panel-title__icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -282,7 +296,7 @@ export default function Dashboard() {
                   </div>
                   <div className="recent-item__meta">
                     <span className="recent-item__amount">
-                      +${order.total_amount.toFixed(2)}
+                      +{formatCurrency(order.total_amount)}
                     </span>
                     <span className="recent-item__date">
                       {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -305,7 +319,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Low stock warning */}
+        {/* Critical Low Stock Alert Board */}
         <div className="dashboard-panel full-width-panel">
           <h2 className="panel-title">
             <svg className="panel-title__icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">

@@ -33,5 +33,7 @@ def create_app():
     # Create database tables
     with app.app_context():
         db.create_all()
+        from app.seeder import seed_database
+        seed_database()
 
     return app

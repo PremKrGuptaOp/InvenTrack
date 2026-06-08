@@ -4,6 +4,7 @@ import Modal from '../components/Modal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { AlertContainer } from '../components/Alert';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { formatCurrency, getAvatarDetails } from '../utils/formatters';
 import './Products.css';
 
 const emptyForm = { name: '', sku: '', price: '', quantity: '' };
@@ -146,17 +147,6 @@ export default function Products() {
     return true; // 'all'
   });
 
-  // Helper to get initials and corresponding gradient name
-  function getProductVisuals(name) {
-    const char = name.trim().charAt(0).toUpperCase() || 'P';
-    const charCode = char.charCodeAt(0);
-    const gradients = ['blue', 'emerald', 'purple', 'amber', 'rose', 'cyan'];
-    const selectedGrad = gradients[charCode % gradients.length];
-    return { char, selectedGrad };
-  }
-
-  if (loading) return <LoadingSpinner message="Loading products..." />;
-
   return (
     <div className="page animate-fade-in-up">
       <AlertContainer alerts={alerts} removeAlert={removeAlert} />
@@ -231,7 +221,7 @@ export default function Products() {
             </thead>
             <tbody>
               {filtered.map((product) => {
-                const { char, selectedGrad } = getProductVisuals(product.name);
+                const { char, selectedGrad } = getAvatarDetails(product.name, 'product');
                 return (
                   <tr key={product.id}>
                     <td>
@@ -248,7 +238,7 @@ export default function Products() {
                     <td>
                       <span className="badge badge--neutral">{product.sku}</span>
                     </td>
-                    <td className="cell-price">${product.price.toFixed(2)}</td>
+                    <td className="cell-price">{formatCurrency(product.price)}</td>
                     <td>
                       <span
                         className={`badge ${

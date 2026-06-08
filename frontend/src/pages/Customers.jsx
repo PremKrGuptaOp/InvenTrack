@@ -4,6 +4,7 @@ import Modal from '../components/Modal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { AlertContainer } from '../components/Alert';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { formatCurrency, getAvatarDetails } from '../utils/formatters';
 import './Products.css'; // Reuse table styles
 import './Customers.css';
 
@@ -109,7 +110,7 @@ export default function Customers() {
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   }
 
-  // Calculate stats for each customer (spent, order count)
+  // Correlate customer IDs with total purchases and total amounts
   const customerStats = useMemo(() => {
     const statsMap = {};
     orders.forEach((o) => {
@@ -127,17 +128,6 @@ export default function Customers() {
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  // Helper to get initials and corresponding gradient name
-  function getCustomerVisuals(name) {
-    const char = name.trim().charAt(0).toUpperCase() || 'C';
-    const charCode = char.charCodeAt(0);
-    const gradients = ['purple', 'blue', 'cyan', 'emerald', 'amber', 'rose'];
-    const selectedGrad = gradients[charCode % gradients.length];
-    return { char, selectedGrad };
-  }
-
-  if (loading) return <LoadingSpinner message="Loading customers..." />;
 
   return (
     <div className="page animate-fade-in-up">
@@ -206,7 +196,7 @@ export default function Customers() {
         /* GRID VIEW */
         <div className="customer-grid">
           {filtered.map((customer) => {
-            const { char, selectedGrad } = getCustomerVisuals(customer.name);
+            const { char, selectedGrad } = getAvatarDetails(customer.name, 'customer');
             const stats = customerStats[customer.id] || { count: 0, spent: 0 };
             return (
               <div key={customer.id} className="customer-card">
@@ -242,7 +232,7 @@ export default function Customers() {
                     <div className="customer-card__stat-lbl">Orders</div>
                   </div>
                   <div className="customer-card__stat-item">
-                    <div className="customer-card__stat-val">${stats.spent.toFixed(2)}</div>
+                    <div className="customer-card__stat-val">{formatCurrency(stats.spent)}</div>
                     <div className="customer-card__stat-lbl">Spent</div>
                   </div>
                 </div>
@@ -266,7 +256,7 @@ export default function Customers() {
             </thead>
             <tbody>
               {filtered.map((customer) => {
-                const { char, selectedGrad } = getCustomerVisuals(customer.name);
+                const { char, selectedGrad } = getAvatarDetails(customer.name, 'customer');
                 const stats = customerStats[customer.id] || { count: 0, spent: 0 };
                 return (
                   <tr key={customer.id}>
@@ -283,7 +273,7 @@ export default function Customers() {
                     <td>
                       <span className="badge badge--neutral">{stats.count} orders</span>
                     </td>
-                    <td className="cell-price">${stats.spent.toFixed(2)}</td>
+                    <td className="cell-price">{formatCurrency(stats.spent)}</td>
                     <td>
                       <button
                         className="btn btn--ghost btn--sm btn-delete"
