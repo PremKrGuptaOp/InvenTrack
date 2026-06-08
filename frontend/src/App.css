@@ -1,0 +1,23 @@
+/* ── App Layout ────────────────────────────── */
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  padding: var(--space-2xl);
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: var(--space-xl) var(--space-md);
+    padding-top: 70px; /* space for mobile toggle button */
+  }
+}

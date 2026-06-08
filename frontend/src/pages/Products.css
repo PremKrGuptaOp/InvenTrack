@@ -1,0 +1,136 @@
+/* ── Shared Page Styles ────────────────────── */
+
+.page {
+  animation: fadeInUp var(--transition-slow) ease-out;
+}
+
+/* ── Search Bar ───────────────────────────── */
+.search-bar {
+  margin-bottom: var(--space-xl);
+  max-width: 400px;
+}
+
+.search-input {
+  background: var(--color-bg-input);
+}
+
+/* ── Data Table ───────────────────────────── */
+.table-wrapper {
+  background: var(--gradient-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  text-align: left;
+  padding: var(--space-md) var(--space-lg);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  background: rgba(15, 23, 42, 0.5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.data-table td {
+  padding: var(--space-md) var(--space-lg);
+  font-size: 0.875rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.06);
+  color: var(--color-text-secondary);
+}
+
+.data-table tbody tr {
+  transition: background var(--transition-fast);
+}
+
+.data-table tbody tr:hover {
+  background: rgba(148, 163, 184, 0.04);
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cell-name {
+  font-weight: 500;
+  color: var(--color-text-primary) !important;
+}
+
+.cell-price {
+  font-weight: 600;
+  color: var(--color-text-primary) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Badges ───────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge--success {
+  background: rgba(16, 185, 129, 0.12);
+  color: #6ee7b7;
+}
+
+.badge--warning {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fcd34d;
+}
+
+.badge--danger {
+  background: rgba(244, 63, 94, 0.12);
+  color: #fda4af;
+}
+
+.badge--neutral {
+  background: rgba(148, 163, 184, 0.1);
+  color: var(--color-text-secondary);
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+}
+
+.badge--info {
+  background: rgba(59, 130, 246, 0.12);
+  color: #93c5fd;
+}
+
+/* ── Table Actions ────────────────────────── */
+.table-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.btn-delete {
+  color: var(--color-accent-rose) !important;
+}
+
+.btn-delete:hover {
+  background: rgba(244, 63, 94, 0.1) !important;
+}
+
+/* ── Responsive Table ─────────────────────── */
+@media (max-width: 768px) {
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  .data-table {
+    min-width: 600px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: var(--space-sm) var(--space-md);
+  }
+}
