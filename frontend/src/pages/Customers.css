@@ -1,0 +1,181 @@
+/* ── View Toggle Toggles ────────────────── */
+
+.view-toggle {
+  display: flex;
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  gap: 2px;
+}
+
+.view-toggle-btn {
+  background: transparent;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+}
+
+.view-toggle-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.view-toggle-btn--active {
+  background: var(--bg-tertiary) !important;
+  color: var(--color-blue) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* ── Customer Cards Grid ──────────────────── */
+.customer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: var(--radius-lg);
+}
+
+.customer-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-premium);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all var(--transition-base);
+  animation: fadeInUp var(--transition-slow) ease-out both;
+}
+
+.customer-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.45);
+}
+
+.customer-card__delete {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all var(--transition-fast);
+}
+
+.customer-card__delete:hover {
+  background: rgba(244, 63, 94, 0.12);
+  color: var(--color-rose);
+}
+
+.customer-card__avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  margin-bottom: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Gradients for avatars */
+.customer-card__avatar--blue { background: var(--grad-primary); }
+.customer-card__avatar--emerald { background: var(--grad-emerald); }
+.customer-card__avatar--purple { background: var(--grad-purple); }
+.customer-card__avatar--amber { background: var(--grad-amber); }
+.customer-card__avatar--rose { background: var(--grad-rose); }
+.customer-card__avatar--cyan { background: var(--grad-cyan); }
+
+.customer-card__name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.customer-card__details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 16px;
+}
+
+.customer-card__detail-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  width: 100%;
+  text-align: left;
+}
+
+.customer-card__icon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.customer-card__detail-item span {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.customer-card__stats {
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+}
+
+.customer-card__stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.customer-card__stat-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.customer-card__stat-lbl {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}

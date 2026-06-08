@@ -1,136 +1,160 @@
-/* ── Shared Page Styles ────────────────────── */
+/* ── Toolbar & Filters Layout ─────────────── */
 
-.page {
-  animation: fadeInUp var(--transition-slow) ease-out;
-}
-
-/* ── Search Bar ───────────────────────────── */
-.search-bar {
-  margin-bottom: var(--space-xl);
-  max-width: 400px;
-}
-
-.search-input {
-  background: var(--color-bg-input);
-}
-
-/* ── Data Table ───────────────────────────── */
-.table-wrapper {
-  background: var(--gradient-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table th {
-  text-align: left;
-  padding: var(--space-md) var(--space-lg);
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text-muted);
-  background: rgba(15, 23, 42, 0.5);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.data-table td {
-  padding: var(--space-md) var(--space-lg);
-  font-size: 0.875rem;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.06);
-  color: var(--color-text-secondary);
-}
-
-.data-table tbody tr {
-  transition: background var(--transition-fast);
-}
-
-.data-table tbody tr:hover {
-  background: rgba(148, 163, 184, 0.04);
-}
-
-.data-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.cell-name {
-  font-weight: 500;
-  color: var(--color-text-primary) !important;
-}
-
-.cell-price {
-  font-weight: 600;
-  color: var(--color-text-primary) !important;
-  font-variant-numeric: tabular-nums;
-}
-
-/* ── Badges ───────────────────────────────── */
-.badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 99px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.badge--success {
-  background: rgba(16, 185, 129, 0.12);
-  color: #6ee7b7;
-}
-
-.badge--warning {
-  background: rgba(245, 158, 11, 0.12);
-  color: #fcd34d;
-}
-
-.badge--danger {
-  background: rgba(244, 63, 94, 0.12);
-  color: #fda4af;
-}
-
-.badge--neutral {
-  background: rgba(148, 163, 184, 0.1);
-  color: var(--color-text-secondary);
-  font-family: 'Courier New', monospace;
-  font-size: 0.8rem;
-}
-
-.badge--info {
-  background: rgba(59, 130, 246, 0.12);
-  color: #93c5fd;
-}
-
-/* ── Table Actions ────────────────────────── */
-.table-actions {
+.toolbar-row {
   display: flex;
-  gap: var(--space-sm);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--radius-lg);
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
-.btn-delete {
-  color: var(--color-accent-rose) !important;
+.toolbar-row .search-bar {
+  margin-bottom: 0;
+  flex: 1;
+  max-width: 380px;
+  min-width: 260px;
 }
 
-.btn-delete:hover {
-  background: rgba(244, 63, 94, 0.1) !important;
+.filter-tabs {
+  display: flex;
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  gap: 2px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* ── Responsive Table ─────────────────────── */
+.filter-tab {
+  background: transparent;
+  border: none;
+  font-family: var(--font-family);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.filter-tab:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.filter-tab--active {
+  background: var(--bg-tertiary) !important;
+  color: var(--color-blue) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* ── Product Avatar & Info Cell ───────────── */
+.product-cell {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.product-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Gradients for avatars */
+.product-avatar--blue { background: var(--grad-primary); }
+.product-avatar--emerald { background: var(--grad-emerald); }
+.product-avatar--purple { background: var(--grad-purple); }
+.product-avatar--amber { background: var(--grad-amber); }
+.product-avatar--rose { background: var(--grad-rose); }
+.product-avatar--cyan { background: var(--grad-cyan); }
+
+.cell-sub-id {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+/* ── Pulsing Stock Badge ──────────────────── */
+.stock-badge--pulse {
+  position: relative;
+  overflow: visible;
+  padding-left: 24px !important;
+}
+
+.badge-pulse-dot {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-rose);
+  box-shadow: 0 0 8px var(--color-rose);
+  animation: badgePulse 1.5s infinite;
+}
+
+@keyframes badgePulse {
+  0% { transform: translateY(-50%) scale(0.9); opacity: 0.6; }
+  50% { transform: translateY(-50%) scale(1.3); opacity: 1; }
+  100% { transform: translateY(-50%) scale(0.9); opacity: 0.6; }
+}
+
+/* ── Empty State Card ─────────────────────── */
+.empty-state-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 48px 24px;
+  text-align: center;
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--shadow-premium);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.empty-state-card__icon {
+  width: 48px;
+  height: 48px;
+  color: var(--text-muted);
+}
+
+.empty-state-card__text {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+/* ── Responsive ───────────────────────────── */
 @media (max-width: 768px) {
-  .table-wrapper {
+  .toolbar-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .toolbar-row .search-bar {
+    max-width: 100%;
+  }
+
+  .filter-tabs {
     overflow-x: auto;
-  }
-
-  .data-table {
-    min-width: 600px;
-  }
-
-  .data-table th,
-  .data-table td {
-    padding: var(--space-sm) var(--space-md);
   }
 }

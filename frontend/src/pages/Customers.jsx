@@ -1,15 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
-import { customerAPI } from '../services/api';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { customerAPI, orderAPI } from '../services/api';
 import Modal from '../components/Modal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { AlertContainer } from '../components/Alert';
 import LoadingSpinner from '../components/LoadingSpinner';
-import './Products.css'; // reuse table styles
+import './Products.css'; // Reuse table styles
+import './Customers.css';
 
 const emptyForm = { name: '', email: '', phone: '' };
 
 export default function Customers() {
   const [customers, setCustomers] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -18,6 +20,7 @@ export default function Customers() {
   const [alerts, setAlerts] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState('grid'); // grid, list
 
   const addAlert = useCallback((message, type = 'success') => {
     const id = Date.now();
@@ -29,15 +32,19 @@ export default function Customers() {
   }, []);
 
   useEffect(() => {
-    loadCustomers();
+    loadData();
   }, []);
 
-  async function loadCustomers() {
+  async function loadData() {
     try {
-      const res = await customerAPI.getAll();
-      setCustomers(res.data);
+      const [custRes, ordRes] = await Promise.all([
+        customerAPI.getAll(),
+        orderAPI.getAll(),
+      ]);
+      setCustomers(custRes.data);
+      setOrders(ordRes.data);
     } catch (err) {
-      addAlert('Failed to load customers', 'error');
+      addAlert('Failed to load customer database', 'error');
     } finally {
       setLoading(false);
     }
@@ -74,7 +81,7 @@ export default function Customers() {
       });
       addAlert('Customer added successfully');
       setModalOpen(false);
-      loadCustomers();
+      loadData();
     } catch (err) {
       const msg = err.response?.data?.error || 'Failed to create customer';
       addAlert(msg, 'error');
@@ -88,7 +95,7 @@ export default function Customers() {
     try {
       await customerAPI.delete(confirmDelete.id);
       addAlert('Customer deleted');
-      loadCustomers();
+      loadData();
     } catch (err) {
       const msg = err.response?.data?.error || 'Could not delete customer';
       addAlert(msg, 'error');
@@ -102,11 +109,33 @@ export default function Customers() {
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   }
 
+  // Calculate stats for each customer (spent, order count)
+  const customerStats = useMemo(() => {
+    const statsMap = {};
+    orders.forEach((o) => {
+      if (!statsMap[o.customer_id]) {
+        statsMap[o.customer_id] = { count: 0, spent: 0 };
+      }
+      statsMap[o.customer_id].count += 1;
+      statsMap[o.customer_id].spent += o.total_amount;
+    });
+    return statsMap;
+  }, [orders]);
+
   const filtered = customers.filter(
     (c) =>
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Helper to get initials and corresponding gradient name
+  function getCustomerVisuals(name) {
+    const char = name.trim().charAt(0).toUpperCase() || 'C';
+    const charCode = char.charCodeAt(0);
+    const gradients = ['purple', 'blue', 'cyan', 'emerald', 'amber', 'rose'];
+    const selectedGrad = gradients[charCode % gradients.length];
+    return { char, selectedGrad };
+  }
 
   if (loading) return <LoadingSpinner message="Loading customers..." />;
 
@@ -116,58 +145,156 @@ export default function Customers() {
 
       <div className="page-header">
         <div>
-          <h1 className="page-title">Customers</h1>
-          <p className="page-subtitle">Manage your customer database</p>
+          <h1 className="page-title">Customer Directory</h1>
+          <p className="page-subtitle">Manage customer contacts, details, and purchasing metrics</p>
         </div>
         <button className="btn btn--primary" onClick={openModal}>
-          + Add Customer
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ marginRight: '2px' }}>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Customer
         </button>
       </div>
 
-      <div className="search-bar">
-        <input
-          type="text"
-          className="form-input search-input"
-          placeholder="Search by name or email..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      {/* Toolbar for Search & List/Grid Toggles */}
+      <div className="toolbar-row">
+        <div className="search-bar">
+          <input
+            type="text"
+            className="form-input search-input"
+            placeholder="Search by name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        {/* View Toggle Buttons */}
+        <div className="view-toggle">
+          <button
+            className={`view-toggle-btn ${viewMode === 'grid' ? 'view-toggle-btn--active' : ''}`}
+            onClick={() => setViewMode('grid')}
+            aria-label="Grid View"
+          >
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            </svg>
+          </button>
+          <button
+            className={`view-toggle-btn ${viewMode === 'list' ? 'view-toggle-btn--active' : ''}`}
+            onClick={() => setViewMode('list')}
+            aria-label="List View"
+          >
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {filtered.length === 0 ? (
-        <div className="empty-state">
-          <span className="empty-state__icon">◉</span>
-          <p className="empty-text">
-            {searchTerm ? 'No customers match your search' : 'No customers yet. Add your first one!'}
+        <div className="empty-state-card">
+          <svg className="empty-state-card__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0" />
+          </svg>
+          <p className="empty-state-card__text">
+            {searchTerm 
+              ? 'No customers match your search query' 
+              : 'No customers in the database yet. Click Add Customer to get started!'}
           </p>
         </div>
+      ) : viewMode === 'grid' ? (
+        /* GRID VIEW */
+        <div className="customer-grid">
+          {filtered.map((customer) => {
+            const { char, selectedGrad } = getCustomerVisuals(customer.name);
+            const stats = customerStats[customer.id] || { count: 0, spent: 0 };
+            return (
+              <div key={customer.id} className="customer-card">
+                <button
+                  className="customer-card__delete"
+                  onClick={() => setConfirmDelete(customer)}
+                  title="Delete Customer"
+                >
+                  ✕
+                </button>
+                <div className={`customer-card__avatar customer-card__avatar--${selectedGrad}`}>
+                  {char}
+                </div>
+                <h3 className="customer-card__name">{customer.name}</h3>
+                <div className="customer-card__details">
+                  <div className="customer-card__detail-item">
+                    <svg className="customer-card__icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span>{customer.email}</span>
+                  </div>
+                  <div className="customer-card__detail-item">
+                    <svg className="customer-card__icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    <span>{customer.phone}</span>
+                  </div>
+                </div>
+
+                <div className="customer-card__stats">
+                  <div className="customer-card__stat-item">
+                    <div className="customer-card__stat-val">{stats.count}</div>
+                    <div className="customer-card__stat-lbl">Orders</div>
+                  </div>
+                  <div className="customer-card__stat-item">
+                    <div className="customer-card__stat-val">${stats.spent.toFixed(2)}</div>
+                    <div className="customer-card__stat-lbl">Spent</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       ) : (
+        /* LIST VIEW */
         <div className="table-wrapper">
           <table className="data-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
+                <th>Customer Name</th>
+                <th>Email Address</th>
+                <th>Phone Number</th>
+                <th>Total Orders</th>
+                <th>Total Spent</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((customer) => (
-                <tr key={customer.id}>
-                  <td className="cell-name">{customer.name}</td>
-                  <td>{customer.email}</td>
-                  <td>{customer.phone}</td>
-                  <td>
-                    <button
-                      className="btn btn--ghost btn--sm btn-delete"
-                      onClick={() => setConfirmDelete(customer)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {filtered.map((customer) => {
+                const { char, selectedGrad } = getCustomerVisuals(customer.name);
+                const stats = customerStats[customer.id] || { count: 0, spent: 0 };
+                return (
+                  <tr key={customer.id}>
+                    <td>
+                      <div className="product-cell">
+                        <div className={`product-avatar product-avatar--${selectedGrad}`}>
+                          {char}
+                        </div>
+                        <div className="cell-name">{customer.name}</div>
+                      </div>
+                    </td>
+                    <td>{customer.email}</td>
+                    <td>{customer.phone}</td>
+                    <td>
+                      <span className="badge badge--neutral">{stats.count} orders</span>
+                    </td>
+                    <td className="cell-price">${stats.spent.toFixed(2)}</td>
+                    <td>
+                      <button
+                        className="btn btn--ghost btn--sm btn-delete"
+                        onClick={() => setConfirmDelete(customer)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -177,7 +304,7 @@ export default function Customers() {
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title="Add Customer"
+        title="Register New Customer"
       >
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -185,7 +312,7 @@ export default function Customers() {
             <input
               className={`form-input ${errors.name ? 'form-input--error' : ''}`}
               type="text"
-              placeholder="John Doe"
+              placeholder="e.g. Jane Smith"
               value={form.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
             />
@@ -197,7 +324,7 @@ export default function Customers() {
             <input
               className={`form-input ${errors.email ? 'form-input--error' : ''}`}
               type="email"
-              placeholder="john@example.com"
+              placeholder="jane.smith@example.com"
               value={form.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
             />
@@ -209,7 +336,7 @@ export default function Customers() {
             <input
               className={`form-input ${errors.phone ? 'form-input--error' : ''}`}
               type="tel"
-              placeholder="+1 (555) 123-4567"
+              placeholder="+1 (555) 019-2834"
               value={form.phone}
               onChange={(e) => handleInputChange('phone', e.target.value)}
             />
@@ -221,7 +348,7 @@ export default function Customers() {
               Cancel
             </button>
             <button type="submit" className="btn btn--primary" disabled={submitting}>
-              {submitting ? 'Saving...' : 'Add Customer'}
+              {submitting ? 'Registering...' : 'Register Customer'}
             </button>
           </div>
         </form>

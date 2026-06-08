@@ -19,6 +19,7 @@ export default function Products() {
   const [alerts, setAlerts] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeFilter, setActiveFilter] = useState('all'); // all, inStock, lowStock, outOfStock
 
   const addAlert = useCallback((message, type = 'success') => {
     const id = Date.now();
@@ -131,12 +132,28 @@ export default function Products() {
     }
   }
 
-  // filter by name or sku
-  const filtered = products.filter(
-    (p) =>
+  // Filter products by search term AND selected filter tab
+  const filtered = products.filter((p) => {
+    const matchesSearch = 
       p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.sku.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      p.sku.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (!matchesSearch) return false;
+    
+    if (activeFilter === 'inStock') return p.quantity >= 10;
+    if (activeFilter === 'lowStock') return p.quantity > 0 && p.quantity < 10;
+    if (activeFilter === 'outOfStock') return p.quantity === 0;
+    return true; // 'all'
+  });
+
+  // Helper to get initials and corresponding gradient name
+  function getProductVisuals(name) {
+    const char = name.trim().charAt(0).toUpperCase() || 'P';
+    const charCode = char.charCodeAt(0);
+    const gradients = ['blue', 'emerald', 'purple', 'amber', 'rose', 'cyan'];
+    const selectedGrad = gradients[charCode % gradients.length];
+    return { char, selectedGrad };
+  }
 
   if (loading) return <LoadingSpinner message="Loading products..." />;
 
@@ -146,31 +163,58 @@ export default function Products() {
 
       <div className="page-header">
         <div>
-          <h1 className="page-title">Products</h1>
-          <p className="page-subtitle">Manage your product inventory</p>
+          <h1 className="page-title">Product Inventory</h1>
+          <p className="page-subtitle">Add, update, filter and track product inventory levels</p>
         </div>
         <button className="btn btn--primary" onClick={openAddModal}>
-          + Add Product
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ marginRight: '2px' }}>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Product
         </button>
       </div>
 
-      {/* Search bar */}
-      <div className="search-bar">
-        <input
-          type="text"
-          className="form-input search-input"
-          placeholder="Search by name or SKU..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      {/* Filter and Search Bar Row */}
+      <div className="toolbar-row">
+        <div className="search-bar">
+          <input
+            type="text"
+            className="form-input search-input"
+            placeholder="Search by name or SKU..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        {/* Filter Tabs */}
+        <div className="filter-tabs">
+          {[
+            { id: 'all', label: 'All Items' },
+            { id: 'inStock', label: 'In Stock' },
+            { id: 'lowStock', label: 'Low Stock' },
+            { id: 'outOfStock', label: 'Out of Stock' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              className={`filter-tab ${activeFilter === tab.id ? 'filter-tab--active' : ''}`}
+              onClick={() => setActiveFilter(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Products table */}
       {filtered.length === 0 ? (
-        <div className="empty-state">
-          <span className="empty-state__icon">⬡</span>
-          <p className="empty-text">
-            {searchTerm ? 'No products match your search' : 'No products yet. Add your first one!'}
+        <div className="empty-state-card">
+          <svg className="empty-state-card__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          <p className="empty-state-card__text">
+            {searchTerm || activeFilter !== 'all' 
+              ? 'No products match your current search and filters' 
+              : 'No products registered in the system yet. Click Add Product to begin!'}
           </p>
         </div>
       ) : (
@@ -178,50 +222,74 @@ export default function Products() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>SKU</th>
-                <th>Price</th>
-                <th>Stock</th>
+                <th>Product details</th>
+                <th>SKU Code</th>
+                <th>Unit Price</th>
+                <th>Stock Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((product) => (
-                <tr key={product.id}>
-                  <td className="cell-name">{product.name}</td>
-                  <td><span className="badge badge--neutral">{product.sku}</span></td>
-                  <td className="cell-price">${product.price.toFixed(2)}</td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        product.quantity === 0
-                          ? 'badge--danger'
-                          : product.quantity < 10
-                          ? 'badge--warning'
-                          : 'badge--success'
-                      }`}
-                    >
-                      {product.quantity}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="table-actions">
-                      <button
-                        className="btn btn--ghost btn--sm"
-                        onClick={() => openEditModal(product)}
+              {filtered.map((product) => {
+                const { char, selectedGrad } = getProductVisuals(product.name);
+                return (
+                  <tr key={product.id}>
+                    <td>
+                      <div className="product-cell">
+                        <div className={`product-avatar product-avatar--${selectedGrad}`}>
+                          {char}
+                        </div>
+                        <div>
+                          <div className="cell-name">{product.name}</div>
+                          <div className="cell-sub-id">ID: #{product.id}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="badge badge--neutral">{product.sku}</span>
+                    </td>
+                    <td className="cell-price">${product.price.toFixed(2)}</td>
+                    <td>
+                      <span
+                        className={`badge ${
+                          product.quantity === 0
+                            ? 'badge--danger stock-badge--pulse'
+                            : product.quantity < 10
+                            ? 'badge--warning'
+                            : 'badge--success'
+                        }`}
                       >
-                        Edit
-                      </button>
-                      <button
-                        className="btn btn--ghost btn--sm btn-delete"
-                        onClick={() => setConfirmDelete(product)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        {product.quantity === 0 ? (
+                          <>
+                            <span className="badge-pulse-dot" />
+                            Out of Stock
+                          </>
+                        ) : product.quantity < 10 ? (
+                          `Low Stock (${product.quantity})`
+                        ) : (
+                          `In Stock (${product.quantity})`
+                        )}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="table-actions">
+                        <button
+                          className="btn btn--secondary btn--sm"
+                          onClick={() => openEditModal(product)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="btn btn--ghost btn--sm btn-delete"
+                          onClick={() => setConfirmDelete(product)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
