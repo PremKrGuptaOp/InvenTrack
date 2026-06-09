@@ -82,8 +82,10 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-image: 
-    radial-gradient(circle at 10% 20%, hsla(250, 91%, 64%, 0.04) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, hsla(189, 94%, 52%, 0.03) 0%, transparent 45%);
+    radial-gradient(circle at 10% 20%, hsla(250, 91%, 64%, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, hsla(189, 94%, 52%, 0.04) 0%, transparent 45%),
+    radial-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 24px 24px;
   background-attachment: fixed;
 }
 
@@ -340,28 +342,33 @@ h1, h2, h3, h4 {
   align-items: center;
   gap: 6px;
   font-size: 0.775rem;
-  font-weight: 600;
-  padding: 4px 10px;
+  font-weight: 700;
+  padding: 5px 12px;
   border-radius: 99px;
   line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .badge--success {
-  background: hsla(142, 70%, 50%, 0.1);
+  background: hsla(142, 70%, 50%, 0.08);
   color: var(--color-emerald);
-  border: 1px solid hsla(142, 70%, 50%, 0.2);
+  border: 1px solid hsla(142, 70%, 50%, 0.25);
+  box-shadow: 0 0 10px hsla(142, 70%, 50%, 0.12);
 }
 
 .badge--warning {
-  background: hsla(38, 92%, 50%, 0.1);
+  background: hsla(38, 92%, 50%, 0.08);
   color: var(--color-amber);
-  border: 1px solid hsla(38, 92%, 50%, 0.2);
+  border: 1px solid hsla(38, 92%, 50%, 0.25);
+  box-shadow: 0 0 10px hsla(38, 92%, 50%, 0.12);
 }
 
 .badge--danger {
-  background: hsla(346, 87%, 57%, 0.1);
+  background: hsla(346, 87%, 57%, 0.08);
   color: var(--color-rose);
-  border: 1px solid hsla(346, 87%, 57%, 0.2);
+  border: 1px solid hsla(346, 87%, 57%, 0.25);
+  box-shadow: 0 0 10px hsla(346, 87%, 57%, 0.12);
 }
 
 .badge--neutral {
@@ -448,8 +455,8 @@ h1, h2, h3, h4 {
 
 /* ── Scrollbars ───────────────────────────── */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -457,11 +464,10 @@ h1, h2, h3, h4 {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-tertiary);
-  border: 2px solid var(--bg-primary);
+  background: linear-gradient(180deg, hsl(217, 91%, 60%) 0%, hsl(271, 91%, 65%) 100%);
   border-radius: 99px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: linear-gradient(180deg, hsl(217, 91%, 70%) 0%, hsl(271, 91%, 75%) 100%);
 }

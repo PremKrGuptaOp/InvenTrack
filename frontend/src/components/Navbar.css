@@ -6,12 +6,14 @@
   top: 0;
   bottom: 0;
   width: 260px;
-  background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
-  border-right: 1px solid var(--border-light);
+  background: linear-gradient(180deg, rgba(13, 18, 30, 0.75) 0%, rgba(8, 11, 20, 0.85) 100%);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
   display: flex;
   flex-direction: column;
   z-index: 100;
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.45);
   transition: transform var(--transition-base);
 }
 
@@ -81,9 +83,10 @@
 }
 
 .sidebar__link--active {
-  background: rgba(59, 130, 246, 0.08);
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0.02) 100%);
   color: var(--color-blue);
   font-weight: 600;
+  border-right: 2px solid var(--color-blue);
 }
 
 .sidebar__link-icon-container {
