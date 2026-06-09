@@ -6,7 +6,7 @@ class Config:
 
     # Render PostgreSQL URLs start with postgres://, but SQLAlchemy requires postgresql://
     _db_url = os.environ.get("DATABASE_URL", "sqlite:///inventory.db")
-    if _db_url.startswith("postgres://"):
+    if _db_url.startswith("postgres://") and not _db_url.startswith("postgresql://"):
         _db_url = _db_url.replace("postgres://", "postgresql://", 1)
 
     SQLALCHEMY_DATABASE_URI = _db_url

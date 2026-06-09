@@ -32,8 +32,15 @@ def create_app():
 
     # Create database tables
     with app.app_context():
-        db.create_all()
-        from app.seeder import seed_database
-        seed_database()
+        try:
+            db.create_all()
+        except Exception as e:
+            app.logger.warning(f"Database table creation warning (possibly concurrent worker startup): {e}")
+        
+        try:
+            from app.seeder import seed_database
+            seed_database()
+        except Exception as e:
+            app.logger.warning(f"Database seeding warning: {e}")
 
     return app
