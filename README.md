@@ -6,6 +6,16 @@ A full-stack, enterprise-grade inventory and order management system. Built with
 
 ---
 
+## 🎨 Visual Showcase
+
+### 📊 Real-time Dashboard
+![Dashboard Screenshot](screenshots/dashboard.png)
+
+### 📦 Products Inventory Management
+![Products Screenshot](screenshots/products.png)
+
+---
+
 ## 🚀 Key Features
 
 * **Real-time Analytics Dashboard**: Features custom interactive SVG trend charts with hover tooltips and a chronological system activity timeline.
