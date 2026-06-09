@@ -1,5 +1,7 @@
 # InvenTrack — Inventory & Order Management System
 
+**🔗 Deployed Live Demo:** [inven-track-nu.vercel.app](https://inven-track-nu.vercel.app)
+
 A full-stack, enterprise-grade inventory and order management system. Built with a modern, glassmorphic dark user interface, real-time metrics visual charting, and transaction logic.
 
 ---
