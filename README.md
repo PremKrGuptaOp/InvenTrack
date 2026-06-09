@@ -14,6 +14,12 @@ A full-stack, enterprise-grade inventory and order management system. Built with
 ### 📦 Products Inventory Management
 ![Products Screenshot](screenshots/products.png)
 
+### 👥 Customers Directory
+![Customers Screenshot](screenshots/customers.png)
+
+### 🛒 Point of Sale & Orders
+![Orders Screenshot](screenshots/orders.png)
+
 ---
 
 ## 🚀 Key Features
